@@ -1,0 +1,18 @@
+FROM ros:jazzy
+WORKDIR /EECE5554
+
+# install apt-utils, will get an error otherwise
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    apt-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# install python packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-serial \
+    python3-scipy \
+    && rm -rf /var/lib/apt/lists/*
+
+# copy source files
+COPY ./vn_driver/src/ /EECE5554/vn_driver/src/
+COPY ./sensor_emulator/ /EECE5554/sensor_emulator
