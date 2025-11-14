@@ -13,8 +13,6 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), 
             glob('launch/*.launch.py')),
-        (os.path.join('share', package_name, 'rviz'), 
-            glob('rviz/*.rviz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -30,7 +28,6 @@ setup(
     entry_points={
         'console_scripts': [
             'imu_node = imu_driver.imu_node:main',
-            'imu_visualizer = imu_driver.imu_visualizer:main',
         ],
     },
 )

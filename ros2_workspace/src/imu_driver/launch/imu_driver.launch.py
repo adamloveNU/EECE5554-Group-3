@@ -42,18 +42,9 @@ def generate_launch_description():
         }]
     )
     
-    # Optional: Visualizer node
-    imu_visualizer = Node(
-        package='imu_driver',
-        executable='imu_visualizer',
-        name='imu_visualizer',
-        output='screen'
-    )
-    
     return LaunchDescription([
         port_arg,
         baudrate_arg,
         frame_id_arg,
         imu_driver,
-        imu_visualizer,
     ])
