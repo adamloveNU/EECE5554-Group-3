@@ -1,3 +1,7 @@
-/ros2_workspace/build/
-/ros2_workspace/install/
-/ros2_workspace/log/
+/rpi_workspace/build/
+/rpi_workspace/install/
+/rpi_workspace/log/
+
+/pc_workspace/build/
+/pc_workspace/install/
+/pc_workspace/log/
