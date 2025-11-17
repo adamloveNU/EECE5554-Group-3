@@ -10,9 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-serial \
-    python3-scipy \
+    python3-numpy \
     && rm -rf /var/lib/apt/lists/*
 
 # copy source files
-COPY ./vn_driver/src/ /EECE5554/vn_driver/src/
-COPY ./sensor_emulator/ /EECE5554/sensor_emulator
+COPY ./ros2_workspace /EECE5554/ros2_workspace
