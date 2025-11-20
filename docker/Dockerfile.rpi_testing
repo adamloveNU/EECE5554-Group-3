@@ -1,0 +1,54 @@
+# build stage with base tools
+FROM ros:jazzy AS build
+WORKDIR /EECE5554
+SHELL ["/bin/bash", "-c"]
+
+# install dependencies
+RUN apt-get update && apt-get install -y -q --no-install-recommends \
+    apt-utils \
+    socat \
+    python3-serial \
+    python3-opencv \
+    libboost-python-dev \
+    libopencv-dev \
+    ros-jazzy-xacro \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# setup ros packages
+FROM build AS ros_setup
+COPY ./rpi_workspace /EECE5554/rpi_workspace
+WORKDIR /EECE5554/rpi_workspace
+RUN . /opt/ros/jazzy/setup.sh && \
+    colcon build --symlink-install
+
+
+# setup cv_bridge package
+FROM build AS cv_setup
+COPY ./rpi_workspace /EECE5554/rpi_workspace
+WORKDIR /EECE5554/cv_workspace/src
+RUN git clone https://github.com/ros-perception/vision_opencv.git -b rolling && \
+    . /opt/ros/jazzy/setup.sh && \
+    cd .. && \
+    colcon build --symlink-install
+
+
+# setup sensor simulators
+FROM build AS simulator_setup
+COPY ./pc_workspace/src/sensor_simulator /EECE5554/simulator_workspace/src/sensor_simulator
+WORKDIR EECE5554/simulator_workspace
+RUN . /opt/ros/jazzy/setup.sh && \
+    colcon build --symlink-install
+
+
+# finalization
+FROM build AS finalize
+COPY --from=ros_setup /EECE5554/rpi_workspace /EECE5554/rpi_workspace
+COPY --from=cv_setup /EECE5554/cv_workspace /EECE5554/cv_workspace
+COPY --from=simulator_setup /EECE5554/simulator_workspace /EECE5554/simulator_workspace
+WORKDIR /EECE5554
+COPY ./docker/entrypoints/rpi_testing_entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
+# for once the container starts
+CMD ["bash"]
