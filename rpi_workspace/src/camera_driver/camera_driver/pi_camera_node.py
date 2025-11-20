@@ -130,11 +130,15 @@ class PiCameraNode(Node):
                     self.get_logger().info(f'Published {self.frame_count} frames')
                     
         except EOFError:
-            # Pipe closed (simulator stopped)
-            self.get_logger().warn('Camera pipe closed')
-            self.timer.cancel()
+            # Pipe temporarily closed during loop - just skip this cycle
+            pass
+        except FileNotFoundError:
+            # Pipe doesn't exist - simulator not running
+            pass
         except Exception as e:
-            # Pipe not ready yet, skip this cycle
+            # Other errors - only log occasionally
+            if self.frame_count % 300 == 0:
+                self.get_logger().debug(f'Read error: {type(e).__name__}')
             pass
 
 def main(args=None):

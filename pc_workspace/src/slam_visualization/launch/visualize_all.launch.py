@@ -10,8 +10,8 @@ from launch.conditions import IfCondition
 def generate_launch_description():
     # Get paths
     slam_viz_share = get_package_share_directory('slam_visualization')
-    rviz_config = os.path.join(slam_viz_share, 'rviz', 'slam_full.rviz')
-    plotjuggler_config = os.path.join(slam_viz_share, 'plotjuggler', 'slam_full_layout.xml')
+    rviz_config = os.path.join(slam_viz_share, 'rviz', 'full_visualization.rviz')
+    plotjuggler_config = os.path.join(slam_viz_share, 'plotjuggler', 'full_layout.xml')
     
     # Declare launch arguments
     use_rviz_arg = DeclareLaunchArgument(
@@ -47,12 +47,16 @@ def generate_launch_description():
         condition=IfCondition(use_rviz)
     )
     
-    # PlotJuggler node (for IMU data plotting)
+# PlotJuggler node (for IMU data plotting)
     plotjuggler_node = Node(
         package='plotjuggler',
         executable='plotjuggler',
         name='plotjuggler',
-        arguments=['--layout', plotjuggler_config, '--buffer_size', '30'],
+        arguments=[
+            '--layout', plotjuggler_config, 
+            '--buffer_size', '30',
+            '--start_streamer', 'ROS2 Topic Subscriber'  # ADD THIS LINE
+        ],
         output='screen',
         condition=IfCondition(use_plotjuggler)
     )

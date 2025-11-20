@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<robot name="slam_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  
+  <!-- Define some colors for visualization -->
+  <material name="blue">
+    <color rgba="0.2 0.3 0.8 1.0"/>
+  </material>
+  
+  <material name="red">
+    <color rgba="0.8 0.2 0.2 1.0"/>
+  </material>
+  
+  <material name="green">
+    <color rgba="0.2 0.8 0.2 1.0"/>
+  </material>
+  
+  <material name="gray">
+    <color rgba="0.5 0.5 0.5 1.0"/>
+  </material>
+  
+  <!-- Base link (robot center/main body) -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.25 0.20 0.10"/>  <!-- 25cm x 20cm x 10cm robot body -->
+      </geometry>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>  <!-- Centered at half height -->
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.25 0.20 0.10"/>
+      </geometry>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+  
+  <!-- IMU link -->
+  <link name="imu_link">
+    <visual>
+      <geometry>
+        <box size="0.02 0.02 0.01"/>  <!-- Small box representing IMU -->
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  
+  <joint name="base_to_imu" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <!-- IMU mounted at center of robot, 6cm above base -->
+    <origin xyz="0.0 0.0 0.11" rpy="0 0 0"/>
+  </joint>
+  
+  <!-- Camera link -->
+  <link name="camera_link">
+    <visual>
+      <geometry>
+        <box size="0.025 0.025 0.025"/>  <!-- Pi Camera V2 approximate size -->
+      </geometry>
+      <material name="green"/>
+    </visual>
+  </link>
+  
+  <joint name="base_to_camera" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <!-- Camera mounted at front of robot, 8cm above base, facing forward -->
+    <origin xyz="0.125 0.0 0.13" rpy="0 0 0"/>
+  </joint>
+  
+  <!-- LiDAR link -->
+  <link name="laser_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.035" length="0.04"/>  <!-- Cylindrical LiDAR -->
+      </geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
+  
+  <joint name="base_to_laser" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser_link"/>
+    <!-- LiDAR mounted at top center of robot, 15cm above base -->
+    <origin xyz="0.0 0.0 0.15" rpy="0 0 0"/>
+  </joint>
+  
+  <!-- Optional: Add wheels for visualization (non-functional) -->
+  <link name="left_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.04" length="0.02"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>  <!-- Rotate 90 degrees -->
+      <material name="gray"/>
+    </visual>
+  </link>
+  
+  <joint name="base_to_left_wheel" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="0.0 0.11 0.04" rpy="0 0 0"/>  <!-- Left side -->
+  </joint>
+  
+  <link name="right_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.04" length="0.02"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <material name="gray"/>
+    </visual>
+  </link>
+  
+  <joint name="base_to_right_wheel" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="0.0 -0.11 0.04" rpy="0 0 0"/>  <!-- Right side -->
+  </joint>
+  
+</robot>
