@@ -192,7 +192,7 @@
                 <match field="data">16777235</match>
             </input>
             <output type="gz.msgs.Twist" topic="/cmd_vel">
-                linear: {x: 1.5}, angular: {z: 0.0}
+                linear: {x: 2.0}, angular: {z: 0.0}
             </output>
         </plugin>
 
@@ -202,7 +202,7 @@
                 <match field="data">16777237</match>
             </input>
             <output type="gz.msgs.Twist" topic="/cmd_vel">
-                linear: {x: -1.5}, angular: {z: 0.0}
+                linear: {x: -2.0}, angular: {z: 0.0}
             </output>
         </plugin>
 
@@ -212,7 +212,7 @@
                 <match field="data">16777234</match>
             </input>
             <output type="gz.msgs.Twist" topic="/cmd_vel">
-                linear: {x: 0.0}, angular: {z: 1.5}
+                linear: {x: 0.0}, angular: {z: 2.0}
             </output>
         </plugin>
 
@@ -222,7 +222,7 @@
                 <match field="data">16777236</match>
             </input>
             <output type="gz.msgs.Twist" topic="/cmd_vel">
-                linear: {x: 0.0}, angular: {z: -1.5}
+                linear: {x: 0.0}, angular: {z: -2.0}
             </output>
         </plugin>
 
@@ -275,11 +275,12 @@
         <!-- ============================================ -->
         <!-- BOUNDARY WALLS -->
         <!-- ============================================ -->
-        <!-- North Wall -->
-        <model name="wall_north">
+        <model name="boundary_walls">
             <static>true</static>
-            <pose>0 10 1 0 0 0</pose>
-            <link name="link">
+            
+            <!-- North Wall -->
+            <link name="north_wall">
+                <pose>0 10 1 0 0 0</pose>
                 <collision name="collision">
                     <geometry>
                         <box>
@@ -300,13 +301,10 @@
                     </material>
                 </visual>
             </link>
-        </model>
 
-        <!-- South Wall -->
-        <model name="wall_south">
-            <static>true</static>
-            <pose>0 -10 1 0 0 0</pose>
-            <link name="link">
+            <!-- South Wall -->
+            <link name="south_wall">
+                <pose>0 -10 1 0 0 0</pose>
                 <collision name="collision">
                     <geometry>
                         <box>
@@ -327,8 +325,55 @@
                     </material>
                 </visual>
             </link>
-        </model>
 
+            <!-- East Wall -->
+            <link name="east_wall">
+                <pose>10 0 1 0 0 0</pose>
+                <collision name="collision">
+                    <geometry>
+                        <box>
+                            <size>0.2 20 2</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <visual name="visual">
+                    <geometry>
+                        <box>
+                            <size>0.2 20 2</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.5 0.5 0.5 1</ambient>
+                        <diffuse>0.5 0.5 0.5 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+            </link>
+
+            <!-- West Wall -->
+            <link name="west_wall">
+                <pose>-10 0 1 0 0 0</pose>
+                <collision name="collision">
+                    <geometry>
+                        <box>
+                            <size>0.2 20 2</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <visual name="visual">
+                    <geometry>
+                        <box>
+                            <size>0.2 20 2</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.5 0.5 0.5 1</ambient>
+                        <diffuse>0.5 0.5 0.5 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+            </link>
+        </model>
 
         <!-- ============================================ -->
         <!-- ROBOT MODEL -->
@@ -348,7 +393,7 @@
                     <ray>
                         <scan>
                             <horizontal>
-                                <samples>640</samples>
+                                <samples>360</samples>
                                 <resolution>1</resolution>
                                 <min_angle>-3.14159</min_angle>
                                 <max_angle>3.14159</max_angle>
@@ -667,7 +712,7 @@
                     <geometry>
                         <cylinder>
                             <radius>0.3</radius>
-                            <length>0.8</length>
+                            <length>1.5</length>
                         </cylinder>
                     </geometry>
                 </collision>
@@ -675,7 +720,7 @@
                     <geometry>
                         <cylinder>
                             <radius>0.3</radius>
-                            <length>0.8</length>
+                            <length>1.2</length>
                         </cylinder>
                     </geometry>
                     <material>
