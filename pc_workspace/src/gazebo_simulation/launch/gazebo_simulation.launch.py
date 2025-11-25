@@ -12,10 +12,8 @@ def generate_launch_description():
     
     # Get paths
     pkg_path = get_package_share_directory('gazebo_simulation')
-    
+    print(pkg_path)
     world_file = os.path.join(pkg_path, 'files', "world.sdf")
-    config_file = os.path.join(pkg_path, 'files', "config.config")
-    os.environ['GZ_GUI_CONFIG_PATH'] = config_file
 
     # Gazebo launch
     gazebo = IncludeLaunchDescription(
