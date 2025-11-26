@@ -7,6 +7,7 @@ SHELL ["/bin/bash", "-c"]
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
     apt-utils \
     socat \
+    v4l-utils \
     python3-serial \
     python3-opencv \
     libboost-python-dev \
