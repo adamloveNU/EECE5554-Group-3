@@ -3,6 +3,8 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge import CvBridge
+import numpy as np
+import json
 import cv2
 import pickle
 import os
@@ -38,14 +40,21 @@ class PiCameraNode(Node):
         # CV Bridge
         self.bridge = CvBridge()
         
-        # Camera info (will be set after first frame)
-        self.camera_info = None
+        # Camera setup
+        with open(os.path.join(self.pipe_path, "meta.json"), 'r') as f:
+            meta = json.load(f)
+        width = meta['width']
+        height = meta['height']
+        self.camera_info = self.create_camera_info(width, height)
+        self.get_logger().info(f'Camera initialized: {width}x{height}')
         
         # Frame counter
-        self.frame_count = 0
+        #self.frame_count = 0
         
         # Create timer to read and publish frames
         timer_period = 1.0 / self.frame_rate
+        self.get_logger().info(f'Camera started at {self.frame_rate} fps')
+        self.last_mtime = 0
         self.timer = self.create_timer(timer_period, self.read_and_publish)
         
     def create_camera_info(self, width, height):
@@ -92,54 +101,47 @@ class PiCameraNode(Node):
         return camera_info
     
     def read_and_publish(self):
-        """Read frame from pipe and publish"""
-        try:
-            # Open pipe for reading
-            with open(self.pipe_path, 'rb') as pipe:
-                # Deserialize frame data
-                frame_data = pickle.load(pipe)
-                
-                frame = frame_data['frame']
-                width = frame_data['width']
-                height = frame_data['height']
-                
-                # Create camera info if first frame
-                if self.camera_info is None:
-                    self.camera_info = self.create_camera_info(width, height)
-                    self.get_logger().info(f'Camera initialized: {width}x{height}')
-                
-                # Convert BGR to RGB
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                
-                # Create ROS Image message
-                image_msg = self.bridge.cv2_to_imgmsg(frame_rgb, encoding="rgb8")
-                image_msg.header.stamp = self.get_clock().now().to_msg()
-                image_msg.header.frame_id = self.frame_id
-                
-                # Update camera info timestamp
-                self.camera_info.header.stamp = image_msg.header.stamp
-                
-                # Publish
-                self.image_pub.publish(image_msg)
-                self.camera_info_pub.publish(self.camera_info)
-                
-                self.frame_count += 1
-                
-                # Log progress
-                if self.frame_count % 100 == 0:
-                    self.get_logger().info(f'Published {self.frame_count} frames')
-                    
-        except EOFError:
-            # Pipe temporarily closed during loop - just skip this cycle
-            pass
-        except FileNotFoundError:
-            # Pipe doesn't exist - simulator not running
-            pass
-        except Exception as e:
-            # Other errors - only log occasionally
-            if self.frame_count % 300 == 0:
-                self.get_logger().debug(f'Read error: {type(e).__name__}')
-            pass
+        #"""Read frame from pipe and publish"""
+        #try:
+        # check for a new video frame
+        self.mtime = os.path.getmtime(os.path.join(self.pipe_path, "frame.npy"))
+        if self.mtime == self.last_mtime:
+            return
+
+        # load new video frame
+        frame = np.load(os.path.join(self.pipe_path, "frame.npy"))
+        if frame is None:
+            return
+        
+        # Create ROS Image message
+        image_msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
+        image_msg.header.stamp = self.get_clock().now().to_msg()
+        image_msg.header.frame_id = self.frame_id
+        
+        # Update camera info timestamp
+        self.camera_info.header.stamp = image_msg.header.stamp
+        
+        # Publish
+        self.image_pub.publish(image_msg)
+        self.camera_info_pub.publish(self.camera_info)
+        
+        #self.frame_count += 1
+        
+        # Log progress
+        #if self.frame_count % 100 == 0:
+        #    self.get_logger().info(f'Published {self.frame_count} frames')
+            
+        #except EOFError:
+        #    # Pipe temporarily closed during loop - just skip this cycle
+        #    pass
+        #except FileNotFoundError:
+        #    # Pipe doesn't exist - simulator not running
+        #    pass
+        #except Exception as e:
+        #    # Other errors - only log occasionally
+        #    if self.frame_count % 300 == 0:
+        #        self.get_logger().debug(f'Read error: {type(e).__name__}')
+        #    pass
 
 def main(args=None):
     rclpy.init(args=None)
